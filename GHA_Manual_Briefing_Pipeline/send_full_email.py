@@ -83,9 +83,9 @@ def parse_calendar_df() -> pd.DataFrame:
 
 
 def build_weeks(today: date) -> list[list[date]]:
-    monday = today - timedelta(days=today.weekday() + 7)
+    monday = today - timedelta(days=today.weekday())
     weeks = []
-    for w in range(3):
+    for w in range(2):
         ws = monday + timedelta(weeks=w)
         weeks.append([ws + timedelta(days=d) for d in range(6)])
     return weeks
@@ -109,25 +109,40 @@ def _calendar_events_for_day(df: pd.DataFrame, d: date) -> list[dict]:
 
 def render_calendar_html(df: pd.DataFrame) -> str:
     parts = [
-        '<h2 style="margin:0 0 8px 0;">Economic Calendar (3 x 6)</h2>',
+        '<h2 style="margin:0 0 8px 0;">Economic Calendar</h2>',
         '<table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse; width:100%; table-layout:fixed;">',
     ]
+
+    country_order = {"united states": 0, "south korea": 1}
+    country_flag = {"united states": "🇺🇸", "south korea": "🇰🇷"}
 
     for week in build_weeks(date.today()):
         parts.append("<tr>")
         for d in week:
-            parts.append('<td valign="top" style="width:16.6%; font-size:12px;">')
+            parts.append(
+                '<td valign="top" style="width:16.6%; font-size:12px; min-height:220px; background:#fff;">'
+            )
             parts.append(f"<b>{escape(d.strftime('%a %m/%d'))}</b><br>")
             events = _calendar_events_for_day(df, d)
+            events.sort(key=lambda e: (country_order.get(e["country"].lower(), 99), e["event"]))
             if not events:
                 parts.append("-<br>")
             else:
                 for e in events:
-                    tag = "US" if e["country"].lower().startswith("united") else "KR"
-                    parts.append(f"<b>{escape(tag)}</b> {escape(e['event'])}<br>")
+                    flag = country_flag.get(e["country"].lower(), "🏳️")
+                    event_line = escape(e["event"])
+                    parts.append('<div style="border:1px solid #eef1f5; border-radius:8px; padding:8px; margin:6px 0; background:#fbfcfe;">')
                     parts.append(
-                        f"A:{escape(e['actual'])} F:{escape(e['forecast'])} P:{escape(e['previous'])}<br><br>"
+                        f'<div style="line-height:1.25; min-height:2.5em; max-height:2.5em; overflow:hidden; font-weight:600;">{flag} {event_line}</div>'
                     )
+                    parts.append(
+                        '<div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'
+                        f'<span style="color:#0f766e; font-weight:700;">A</span>: {escape(e["actual"])} &nbsp; '
+                        f'<span style="color:#1d4ed8; font-weight:700;">F</span>: {escape(e["forecast"])} &nbsp; '
+                        f'<span style="color:#b45309; font-weight:700;">P</span>: {escape(e["previous"])}'
+                        "</div>"
+                    )
+                    parts.append("</div>")
             parts.append("</td>")
         parts.append("</tr>")
 
@@ -144,7 +159,7 @@ def render_news_html() -> str:
     country_view = payload.get("country_view", {})
 
     parts = [
-        '<h2 style="margin:22px 0 8px 0;">Foreign Companies</h2>',
+        '<h2 style="margin:22px 0 8px 0;">Country</h2>',
         '<hr style="margin:8px 0 14px 0;">',
     ]
 
@@ -152,48 +167,51 @@ def render_news_html() -> str:
         parts.append("<p>No macro news available.</p>")
         return "\n".join(parts)
 
-    for country, topics in country_view.items():
+    country_order = [
+        ("United States", "🇺🇸"),
+        ("China", "🇨🇳"),
+        ("Japan", "🇯🇵"),
+        ("Korea", "🇰🇷"),
+        ("EU", "🇪🇺"),
+    ]
+
+    for country, flag in country_order:
+        topics = country_view.get(country)
         if not isinstance(topics, dict):
             continue
 
-        parts.append(f"<h2>{escape(str(country))}</h2>")
+        parts.append(f"<h3>{flag} {escape(str(country))}</h3>")
         parts.append("<hr>")
 
-        for topic, articles in topics.items():
-            if not isinstance(articles, list) or not articles:
+        merged: list[dict] = []
+        for _, articles in topics.items():
+            if not isinstance(articles, list):
                 continue
+            merged.extend([a for a in articles if isinstance(a, dict) and a.get("usable") is True])
 
-            usable = [a for a in articles if isinstance(a, dict) and a.get("usable") is True]
-            usable.sort(key=_article_sort_key, reverse=True)
-            if not usable:
-                continue
+        merged.sort(key=_article_sort_key, reverse=True)
 
-            topic_label = TOPIC_LABELS.get(str(topic), str(topic))
-            parts.append(f"<h3>{escape(topic_label)}</h3>")
+        for article in merged:
+            title = escape(str(article.get("title", "")).strip())
+            dt = escape(str(article.get("date", "")).strip())
+            summary = str(article.get("AI_summary", "")).strip()
+            if summary in ("", "Didn't run yet", "REPLACE_REAL_HERE", "SUMMARY ERROR"):
+                summary = str(article.get("lede", "")).strip()
+            summary = escape(summary)
 
-            for article in usable:
-                title = escape(str(article.get("title", "")).strip())
-                dt = escape(str(article.get("date", "")).strip())
-                summary = str(article.get("AI_summary", "")).strip()
-                if summary in ("", "Didn't run yet", "REPLACE_REAL_HERE", "SUMMARY ERROR"):
-                    summary = str(article.get("lede", "")).strip()
-                summary = escape(summary)
+            source = str(article.get("link", "")).strip()
+            source_text = escape(source)
 
-                source = str(article.get("link", "")).strip()
-                source_text = escape(source)
-
-                parts.append("<p>")
-                parts.append(f"<b>Title:</b> {title}<br>")
-                if dt:
-                    parts.append(f"<b>Date:</b> {dt}<br>")
-                if summary:
-                    parts.append(f"<b>AI summary:</b> {summary}<br>")
-                if source.startswith(("http://", "https://")):
-                    safe_url = escape(source, quote=True)
-                    parts.append(f'<b>Link/Source:</b> <a href="{safe_url}">{source_text}</a><br>')
-                else:
-                    parts.append("<b>Link/Source:</b> -<br>")
-                parts.append("</p>")
+            parts.append("<p>")
+            parts.append(f"<b>News Title:</b> {title or '-'}<br>")
+            parts.append(f"<b>DATE:</b> {dt or '-'}<br>")
+            parts.append(f"<b>AI SUMMARY:</b> {summary or '-'}<br>")
+            if source.startswith(("http://", "https://")):
+                safe_url = escape(source, quote=True)
+                parts.append(f'<b>LINK:</b> <a href="{safe_url}">{source_text}</a><br>')
+            else:
+                parts.append("<b>LINK:</b> -<br>")
+            parts.append("</p>")
 
     return "\n".join(parts)
 

@@ -33,20 +33,20 @@ EXCLUDED_DOMAINS = ["stocktitan.net"]
 EXCLUDED_TITLE_KEYWORDS = ["investor alert"]
 
 USABLE_ARTICLE_CAPS = {
-    "US_monetary": 8,
-    "US_fiscal": 8,
-    "US_politics": 8,
-    "CN_monetary": 8,
-    "CN_fiscal": 8,
-    "CN_politics": 8,
-    "JP_monetary": 8,
-    "JP_fiscal": 8,
-    "JP_politics": 8,
-    "KR_monetary": 8,
-    "KR_fiscal": 8,
-    "KR_politics": 8,
-    "EU_monetary": 8,
-    "EU_politics": 8,
+    "US_monetary": 5,
+    "US_fiscal": 5,
+    "US_politics": 5,
+    "CN_monetary": 5,
+    "CN_fiscal": 5,
+    "CN_politics": 5,
+    "JP_monetary": 5,
+    "JP_fiscal": 5,
+    "JP_politics": 5,
+    "KR_monetary": 5,
+    "KR_fiscal": 5,
+    "KR_politics": 5,
+    "EU_monetary": 5,
+    "EU_politics": 5,
 }
 
 SECTION_GROUPS = {

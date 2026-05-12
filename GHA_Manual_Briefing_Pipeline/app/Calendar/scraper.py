@@ -211,9 +211,9 @@ def fetch_calendar(date_from: str, date_to: str) -> list[dict]:
 def main():
     today_str = date.today().strftime("%Y-%m-%d")
     today = date.today()
-    last_monday = today - timedelta(days=today.weekday() + 7)
-    next_saturday = last_monday + timedelta(days=19)
-    date_from = last_monday.strftime("%Y-%m-%d")
+    this_monday = today - timedelta(days=today.weekday())
+    next_saturday = this_monday + timedelta(days=12)
+    date_from = this_monday.strftime("%Y-%m-%d")
     date_to   = next_saturday.strftime("%Y-%m-%d")
 
     print(f"수집 기간: {date_from} ~ {date_to}")
