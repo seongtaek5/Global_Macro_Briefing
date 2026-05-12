@@ -9,7 +9,7 @@ It is self-contained for deployment with only two folders:
 
 ## What It Does
 
-1. Accepts `TE_COOKIES` input each run.
+1. Uses `TE_COOKIES` from environment/secrets (no `.env` write in pipeline).
 2. Crawls TradingEconomics calendar.
 3. Runs macro news crawling and filtering.
 4. Builds email with:
@@ -32,13 +32,20 @@ It is self-contained for deployment with only two folders:
 ## Local Run
 
 ```bash
-python GHA_Manual_Briefing_Pipeline/run_pipeline.py --te-cookies "YOUR_COOKIE" --send-mail
+set TE_COOKIES=YOUR_COOKIE
+python GHA_Manual_Briefing_Pipeline/run_pipeline.py --send-mail
 ```
 
 Dry-run mail mode:
 
 ```bash
-python GHA_Manual_Briefing_Pipeline/run_pipeline.py --te-cookies "YOUR_COOKIE" --dry-run-mail
+python GHA_Manual_Briefing_Pipeline/run_pipeline.py --dry-run-mail
+```
+
+Optional CLI override:
+
+```bash
+python GHA_Manual_Briefing_Pipeline/run_pipeline.py --te-cookies "YOUR_COOKIE" --send-mail
 ```
 
 Run dashboard locally:
