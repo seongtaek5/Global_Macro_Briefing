@@ -1,9 +1,9 @@
 name: Daily Macro Briefing
 
 on:
-  schedule:
-    # 07:00 KST every day (22:00 UTC previous day)
-    - cron: "0 22 * * *"
+  # schedule:
+  #   # 07:00 KST every day (22:00 UTC previous day)
+  #   - cron: "0 22 * * *"
   workflow_dispatch:
 
 permissions:
