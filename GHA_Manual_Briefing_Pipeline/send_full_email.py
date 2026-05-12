@@ -133,7 +133,7 @@ def render_calendar_html(df: pd.DataFrame) -> str:
                     event_line = escape(e["event"])
                     parts.append('<div style="border:1px solid #eef1f5; border-radius:8px; padding:8px; margin:6px 0; background:#fbfcfe;">')
                     parts.append(
-                        f'<div style="line-height:1.25; min-height:2.5em; max-height:2.5em; overflow:hidden; font-weight:600;">{flag} {event_line}</div>'
+                        f'<div style="line-height:1.25; min-height:2.5em; max-height:2.5em; overflow:hidden; font-weight:700;"><strong>{flag} {event_line}</strong></div>'
                     )
                     parts.append(
                         '<div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">'
