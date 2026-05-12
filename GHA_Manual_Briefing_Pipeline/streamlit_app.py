@@ -87,7 +87,7 @@ def render_calendar(df: pd.DataFrame) -> None:
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 6px;
         }
         .afp-row {
@@ -134,7 +134,7 @@ def render_calendar(df: pd.DataFrame) -> None:
                         ckey = country.lower()
                         flag = country_flag.get(ckey, "🏳️")
                         html_parts.append('<div class="event-card">')
-                        html_parts.append(f'<div class="event-title">{flag} {event}</div>')
+                        html_parts.append(f'<div class="event-title"><strong>{flag} {event}</strong></div>')
                         html_parts.append(
                             '<div class="afp-row">'
                             f'<span class="afp-a">A</span>: {actual} &nbsp; '
