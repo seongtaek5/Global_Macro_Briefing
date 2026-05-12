@@ -1,0 +1,42 @@
+name: Daily Macro Briefing
+
+on:
+  schedule:
+    # 07:00 KST every day (22:00 UTC previous day)
+    - cron: "0 22 * * *"
+  workflow_dispatch:
+
+jobs:
+  build-and-send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+      TE_COOKIES: ${{ secrets.TE_COOKIES }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+      NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+      SENDER_MAIL: ${{ secrets.SENDER_MAIL }}
+      GOOGLE_PASSWORD: ${{ secrets.GOOGLE_PASSWORD }}
+      RECIPIENTS: ${{ secrets.RECIPIENTS }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r Economic_Briefing/Macro_News_Briefing/requirements.txt
+          pip install -r Economic_Briefing/Unified_Briefing_App/requirements.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Run daily pipeline
+        working-directory: Economic_Briefing/Unified_Briefing_App
+        run: |
+          python run_all.py --collect-calendar --build-news --quick-news --send-mail --max-news-per-topic 2
