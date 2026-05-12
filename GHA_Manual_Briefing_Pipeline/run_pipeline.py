@@ -1,4 +1,5 @@
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -27,42 +28,9 @@ def validate_news_hour_window(expected_hours: int = 24) -> None:
     print(f"[OK] News hour window check passed: HOUR_WINDOW={actual}")
 
 
-def _read_env_lines(path: Path) -> list[str]:
-    if not path.exists():
-        return []
-    return path.read_text(encoding="utf-8-sig").splitlines()
-
-
-def _write_env_lines(path: Path, lines: list[str]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    text = "\n".join(lines).rstrip("\n") + "\n"
-    path.write_text(text, encoding="utf-8")
-
-
-def upsert_te_cookies(env_path: Path, te_cookies: str) -> None:
-    if not te_cookies.strip():
-        raise ValueError("TE_COOKIES is empty. Provide a valid TradingEconomics cookie string.")
-
-    lines = _read_env_lines(env_path)
-    replaced = False
-    out: list[str] = []
-
-    for line in lines:
-        if line.strip().startswith("TE_COOKIES="):
-            out.append(f"TE_COOKIES={te_cookies}")
-            replaced = True
-        else:
-            out.append(line)
-
-    if not replaced:
-        out.append(f"TE_COOKIES={te_cookies}")
-
-    _write_env_lines(env_path, out)
-
-
-def run_step(cmd: list[str], cwd: Path) -> None:
+def run_step(cmd: list[str], cwd: Path, env: dict | None = None) -> None:
     print(f"[RUN] {' '.join(cmd)}")
-    completed = subprocess.run(cmd, cwd=str(cwd), check=False)
+    completed = subprocess.run(cmd, cwd=str(cwd), check=False, env=env)
     if completed.returncode != 0:
         raise RuntimeError(f"Command failed with code {completed.returncode}: {' '.join(cmd)}")
 
@@ -73,7 +41,7 @@ def ensure_outputs() -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run manual GitHub Actions briefing pipeline.")
-    parser.add_argument("--te-cookies", required=True, help="TradingEconomics cookie string")
+    parser.add_argument("--te-cookies", default="", help="TradingEconomics cookie string")
     parser.add_argument("--send-mail", action="store_true", help="Send Gmail after crawling")
     parser.add_argument("--dry-run-mail", action="store_true", help="Build email HTML only")
     args = parser.parse_args()
@@ -81,11 +49,14 @@ def main() -> int:
     ensure_outputs()
     validate_news_hour_window(expected_hours=24)
 
-    calendar_env = CALENDAR_DIR / ".env"
-    upsert_te_cookies(calendar_env, args.te_cookies)
-    print(f"[OK] Updated TE_COOKIES in {calendar_env}")
+    te_cookies = args.te_cookies.strip() or os.getenv("TE_COOKIES", "").strip()
+    if not te_cookies:
+        raise RuntimeError("Missing TE_COOKIES. Set GitHub secret TE_COOKIES or pass --te-cookies.")
 
-    run_step([sys.executable, "scraper.py"], cwd=CALENDAR_DIR)
+    child_env = os.environ.copy()
+    child_env["TE_COOKIES"] = te_cookies
+
+    run_step([sys.executable, "scraper.py"], cwd=CALENDAR_DIR, env=child_env)
     run_step([sys.executable, "main.py"], cwd=NEWS_DIR)
 
     email_cmd = [

@@ -3,10 +3,6 @@ name: Manual Macro Briefing Pipeline
 on:
   workflow_dispatch:
     inputs:
-      te_cookies:
-        description: "TradingEconomics cookie (copy(document.cookie))"
-        required: true
-        type: string
       send_mail:
         description: "Send Gmail after pipeline"
         required: true
@@ -18,6 +14,13 @@ on:
         default: ""
         type: string
 
+permissions:
+  contents: read
+
+concurrency:
+  group: manual-macro-briefing-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   run-manual-pipeline:
     runs-on: ubuntu-latest
@@ -25,6 +28,7 @@ jobs:
 
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      TE_COOKIES: ${{ secrets.TE_COOKIES }}
       NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
       NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
       SENDER_MAIL: ${{ secrets.SENDER_MAIL }}
@@ -47,25 +51,22 @@ jobs:
           pip install -r GHA_Manual_Briefing_Pipeline/requirements.txt
           python -m playwright install --with-deps chromium
 
-      - name: Mask TE cookies in logs
-        run: echo "::add-mask::${{ inputs.te_cookies }}"
-
       - name: Apply recipients override
         if: ${{ inputs.recipients_override != '' }}
-        run: echo "RECIPIENTS=${{ inputs.recipients_override }}" >> "$GITHUB_ENV"
+        run: |
+          SANITIZED_RECIPIENTS="$(printf '%s' "${{ inputs.recipients_override }}" | tr -d '\r\n')"
+          echo "RECIPIENTS=${SANITIZED_RECIPIENTS}" >> "$GITHUB_ENV"
 
       - name: Run manual pipeline (send mail)
         if: ${{ inputs.send_mail }}
         run: |
           python GHA_Manual_Briefing_Pipeline/run_pipeline.py \
-            --te-cookies "${{ inputs.te_cookies }}" \
             --send-mail
 
       - name: Run manual pipeline (dry-run mail)
         if: ${{ !inputs.send_mail }}
         run: |
           python GHA_Manual_Briefing_Pipeline/run_pipeline.py \
-            --te-cookies "${{ inputs.te_cookies }}" \
             --dry-run-mail
 
       - name: Upload artifacts

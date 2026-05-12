@@ -1,6 +1,6 @@
-pandas>=2.1
-python-dotenv>=1.0
-streamlit>=1.32
-playwright>=1.45
-beautifulsoup4>=4.12
-lxml>=5.2
+pandas==2.3.3
+python-dotenv==1.2.1
+streamlit==1.45.1
+playwright==1.52.0
+beautifulsoup4==4.14.2
+lxml==6.0.2
