@@ -180,7 +180,9 @@ def render_news_html() -> str:
         if not isinstance(topics, dict):
             continue
 
-        parts.append(f"<h3>{flag} {escape(str(country))}</h3>")
+        parts.append(
+            f'<div style="font-size:32px; font-weight:800; line-height:1.2; margin-top:18px;">{flag} {escape(str(country))}</div>'
+        )
         parts.append("<hr>")
 
         merged: list[dict] = []
@@ -189,7 +191,13 @@ def render_news_html() -> str:
                 continue
             merged.extend([a for a in articles if isinstance(a, dict) and a.get("usable") is True])
 
-        merged.sort(key=_article_sort_key, reverse=True)
+        merged.sort(
+            key=lambda x: (
+                1 if x.get("is_big6_priority") else 0,
+                _article_sort_key(x),
+            ),
+            reverse=True,
+        )
 
         for article in merged:
             title = escape(str(article.get("title", "")).strip())

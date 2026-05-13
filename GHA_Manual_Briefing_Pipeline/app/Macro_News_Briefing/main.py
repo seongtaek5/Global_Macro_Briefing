@@ -69,6 +69,17 @@ def _extract_region(topic: str) -> str:
     return getattr(settings, "TOPIC_REGION", {}).get(topic, "Other")
 
 
+def _is_big6_article(article: dict) -> bool:
+    rss_used = str(article.get("rss_used", "")).strip()
+    if not rss_used:
+        return False
+    if rss_used == "naver_api":
+        return False
+    if rss_used.startswith("https://news.google.com/rss/search?q="):
+        return False
+    return True
+
+
 def _process_article_for_filter(topic: str, article: dict) -> dict | None:
     title = str(article.get("title", "")).rsplit(" - ", 1)[0]
     title_lower = title.lower()
@@ -128,6 +139,7 @@ def _process_article_for_filter(topic: str, article: dict) -> dict | None:
 
     new_article_map["categories"] = []
     new_article_map["newsstate"] = news_info
+    new_article_map["is_big6_priority"] = _is_big6_article(article)
     new_article_map["usable"] = news_info.get("is_relevant") is True and has_visible_summary
 
     if not has_visible_summary:
@@ -220,7 +232,13 @@ def _build_country_view(news_by_topic: dict[str, list[dict]]) -> dict[str, dict]
                 a for a in news_by_topic.get(topic, [])
                 if isinstance(a, dict) and a.get("usable") is True
             ]
-            topic_articles.sort(key=lambda x: str(x.get("date", "")), reverse=True)
+            topic_articles.sort(
+                key=lambda x: (
+                    1 if x.get("is_big6_priority") else 0,
+                    str(x.get("date", "")),
+                ),
+                reverse=True,
+            )
             if topic_articles:
                 country_topics[topic] = topic_articles
 
@@ -301,6 +319,10 @@ def main() -> None:
         if before != after:
             logging.info("Final relevance pass | %s: %d -> %d usable articles", topic, before, after)
 
+    pre_llm_total = sum(len(v) for v in cumulative_news.values())
+    post_llm_total = sum(len(v) for v in news_through_filter.values())
+    final_total = sum(1 for v in news_through_filter.values() for a in v if a.get("usable"))
+
     payload = {
         "generated_at_utc": time_now.isoformat(),
         "news_through_filter": news_through_filter,
@@ -320,10 +342,6 @@ def main() -> None:
     analyzed_total = (
         big6_counts["analyzed"] + google_counts["analyzed"] + naver_counts["analyzed"]
     )
-    pre_llm_total = sum(len(v) for v in cumulative_news.values())
-    post_llm_total = sum(len(v) for v in news_through_filter.values())
-    final_total = sum(1 for v in news_through_filter.values() for a in v if a.get("usable"))
-
     logging.info(
         "RUN COUNTS | encountered=%s | analyzed=%s | pre_llm=%s | post_llm=%s | final=%s",
         encountered_total,

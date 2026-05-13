@@ -1,6 +1,7 @@
 import glob
 import json
 from datetime import date, timedelta
+from html import escape
 from pathlib import Path
 
 import pandas as pd
@@ -127,10 +128,10 @@ def render_calendar(df: pd.DataFrame) -> None:
                 else:
                     for _, r in rows.iterrows():
                         country = str(r.get("Country", "")).strip()
-                        event = str(r.get("Event", "")).strip()
-                        actual = str(r.get("Actual", "")).strip() or "-"
-                        forecast = str(r.get("Forecast", "")).strip() or "-"
-                        previous = str(r.get("Previous", "")).strip() or "-"
+                        event = escape(str(r.get("Event", "")).strip())
+                        actual = escape(str(r.get("Actual", "")).strip() or "-")
+                        forecast = escape(str(r.get("Forecast", "")).strip() or "-")
+                        previous = escape(str(r.get("Previous", "")).strip() or "-")
                         ckey = country.lower()
                         flag = country_flag.get(ckey, "🏳️")
                         html_parts.append('<div class="event-card">')
@@ -176,8 +177,18 @@ def render_news(payload: dict) -> None:
         if not merged:
             continue
 
-        merged.sort(key=lambda x: str(x.get("date", "")), reverse=True)
-        st.markdown(f"### {flag} {country_name}")
+        merged.sort(
+            key=lambda x: (
+                1 if x.get("is_big6_priority") else 0,
+                str(x.get("date", "")),
+            ),
+            reverse=True,
+        )
+        st.markdown(
+            f'<div style="font-size:32px; font-weight:800; line-height:1.2;">{flag} {country_name}</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown("---")
         for article in merged:
             title = str(article.get("title", "")).strip()
             dt = str(article.get("date", "")).strip()
@@ -190,7 +201,7 @@ def render_news(payload: dict) -> None:
             st.markdown(f"**DATE:** {dt or '-'}")
             st.markdown(f"**AI SUMMARY:** {summary or '-'}")
             st.markdown(f"**LINK:** {link or '-'}")
-            st.markdown("---")
+            st.write("")
 
 
 def main() -> None:
