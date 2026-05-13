@@ -1,23 +1,20 @@
 ﻿Date,Country,Event,Category,Actual,Previous,Forecast,Symbol,Importance
-2026-05-12 09:15 PM,united states,ADP Employment Change Weekly,adp employment change weekly,33.0K,"30.25K 
- 
-                        ®",,USAAECW,3
-2026-05-12 09:30 PM,united states,Core Inflation Rate MoM APR,core inflation rate mom,0.4%,0.2%,0.3%,USACIRM,3
-2026-05-12 09:30 PM,united states,Core Inflation Rate YoY APR,core inflation rate,2.8%,2.6%,2.6%,USACORECPIRATE,3
-2026-05-12 09:30 PM,united states,Inflation Rate MoM APR,inflation rate mom,0.6%,0.9%,0.5%,UNITEDSTAINFRATMOM,3
-2026-05-12 09:30 PM,united states,Inflation Rate YoY APR,inflation rate,3.8%,3.3%,3.6%,CPI YOY,3
-2026-05-12 09:30 PM,united states,CPI APR,consumer price index cpi,333.02,330.21,332.3,UNITEDSTACONPRIINDCP,3
-2026-05-12 09:30 PM,united states,CPI s.a APR,cpi seasonally adjusted,332.407,330.293,331.9,USACSA,3
 2026-05-13 03:00 AM,united states,Monthly Budget Statement APR,government budget value,$215B,"$-164B 
  
                         ®",$179.0B,UNITEDSTAGOVBUDVAL,3
 2026-05-13 05:34 AM,united states,API Crude Oil Stock Change MAY/08,api crude oil stock change,-2.188M,-8.1M,-1.65M,APICRUDEOIL,3
 2026-05-13 08:00 AM,south korea,Unemployment Rate APR,unemployment rate,2.8%,2.7%,2.8%,KOEAUERS,3
-2026-05-13 08:00 PM,united states,MBA 30-Year Mortgage Rate MAY/08,mortgage rate,,6.45%,,UNITEDSTAMORRAT,3
-2026-05-13 09:30 PM,united states,PPI MoM APR,producer price inflation mom,,0.5%,0.4%,USAPPIM,3
-2026-05-13 09:30 PM,united states,Core PPI MoM APR,core producer prices mom,,0.1%,0.2%,USACPPM,3
-2026-05-13 11:30 PM,united states,EIA Crude Oil Stocks Change MAY/08,crude oil stocks change,,-2.314M,-2M,UNITEDSTACRUOILSTOCH,3
-2026-05-13 11:30 PM,united states,EIA Gasoline Stocks Change MAY/08,gasoline stocks change,,-2.504M,-2.55M,UNITEDSTAGASSTOCHA,3
+2026-05-13 08:00 PM,united states,MBA 30-Year Mortgage Rate MAY/08,mortgage rate,6.46%,6.45%,,UNITEDSTAMORRAT,3
+2026-05-13 09:30 PM,united states,PPI MoM APR,producer price inflation mom,1.4%,"0.7% 
+ 
+                        ®",0.4%,USAPPIM,3
+2026-05-13 09:30 PM,united states,Core PPI MoM APR,core producer prices mom,1%,"0.2% 
+ 
+                        ®",0.2%,USACPPM,3
+2026-05-13 11:30 PM,united states,EIA Crude Oil Stocks Change MAY/08,crude oil stocks change,-4.306M,"-2.313M 
+ 
+                        ®",-2.10M,UNITEDSTACRUOILSTOCH,3
+2026-05-13 11:30 PM,united states,EIA Gasoline Stocks Change MAY/08,gasoline stocks change,-4.084M,-2.504M,-2.85M,UNITEDSTAGASSTOCHA,3
 2026-05-14 09:30 PM,united states,Retail Sales MoM APR,retail sales mom,,1.7%,0.4%,RSTAMOM,3
 2026-05-14 09:30 PM,united states,Export Prices MoM APR,export prices mom,,1.6%,1.1%,USAEPM,3
 2026-05-14 09:30 PM,united states,Import Prices MoM APR,import prices mom,,0.8%,0.9%,USAIPM,3
@@ -33,6 +30,9 @@
 2026-05-19 11:00 PM,united states,Pending Home Sales MoM APR,pending home sales mom,,1.5%,0.8%,USAPHSM,3
 2026-05-19 11:00 PM,united states,Pending Home Sales YoY APR,pending home sales,,-1.1%,-0.5%,UNITEDSTAPENHOMSAL,3
 2026-05-20 05:30 AM,united states,API Crude Oil Stock Change MAY/15,api crude oil stock change,,-2.188M,,APICRUDEOIL,3
+2026-05-20 08:00 PM,united states,MBA 30-Year Mortgage Rate MAY/15,mortgage rate,,6.46%,,UNITEDSTAMORRAT,3
+2026-05-20 11:30 PM,united states,EIA Crude Oil Stocks Change MAY/15,crude oil stocks change,,-4.306M,,UNITEDSTACRUOILSTOCH,3
+2026-05-20 11:30 PM,united states,EIA Gasoline Stocks Change MAY/15,gasoline stocks change,,-4.084M,,UNITEDSTAGASSTOCHA,3
 2026-05-21 09:30 PM,united states,Building Permits Prel APR,building permits,,1.363M,1.35M,UNITEDSTABUIPER,3
 2026-05-21 09:30 PM,united states,Housing Starts APR,housing starts,,1.502M,1.45M,UNITEDSTAHOUSTA,3
 2026-05-21 09:30 PM,united states,Building Permits MoM Prel APR,building permits mom,,-11.4%,-1.0%,USABPM,3
@@ -65,3 +65,5 @@
 2026-05-29 10:45 PM,united states,Chicago PMI MAY,chicago pmi,,49.2,49.5,UNITEDSTACHIPMI,3
 2026-06-01 09:00 AM,south korea,Exports YoY MAY,exports yoy,,48%,,KOREXPYOY,3
 2026-06-01 09:30 AM,south korea,S&P Global Manufacturing PMI MAY,manufacturing pmi,,53.6,,SOUTHKOREMANPMI,3
+2026-06-01 11:00 PM,united states,ISM Manufacturing PMI MAY,business confidence,,52.7,,NAPMPMI,3
+2026-06-01 11:00 PM,united states,ISM Manufacturing Employment MAY,ism manufacturing employment,,46.4,,USAIME,3
