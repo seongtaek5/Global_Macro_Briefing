@@ -1,0 +1,67 @@
+﻿Date,Country,Event,Category,Actual,Previous,Forecast,Symbol,Importance
+2026-05-12 09:15 PM,united states,ADP Employment Change Weekly,adp employment change weekly,33.0K,"30.25K 
+ 
+                        ®",,USAAECW,3
+2026-05-12 09:30 PM,united states,Core Inflation Rate MoM APR,core inflation rate mom,0.4%,0.2%,0.3%,USACIRM,3
+2026-05-12 09:30 PM,united states,Core Inflation Rate YoY APR,core inflation rate,2.8%,2.6%,2.6%,USACORECPIRATE,3
+2026-05-12 09:30 PM,united states,Inflation Rate MoM APR,inflation rate mom,0.6%,0.9%,0.5%,UNITEDSTAINFRATMOM,3
+2026-05-12 09:30 PM,united states,Inflation Rate YoY APR,inflation rate,3.8%,3.3%,3.6%,CPI YOY,3
+2026-05-12 09:30 PM,united states,CPI APR,consumer price index cpi,333.02,330.21,332.3,UNITEDSTACONPRIINDCP,3
+2026-05-12 09:30 PM,united states,CPI s.a APR,cpi seasonally adjusted,332.407,330.293,331.9,USACSA,3
+2026-05-13 03:00 AM,united states,Monthly Budget Statement APR,government budget value,$215B,"$-164B 
+ 
+                        ®",$179.0B,UNITEDSTAGOVBUDVAL,3
+2026-05-13 05:34 AM,united states,API Crude Oil Stock Change MAY/08,api crude oil stock change,-2.188M,-8.1M,-1.65M,APICRUDEOIL,3
+2026-05-13 08:00 AM,south korea,Unemployment Rate APR,unemployment rate,2.8%,2.7%,2.8%,KOEAUERS,3
+2026-05-13 08:00 PM,united states,MBA 30-Year Mortgage Rate MAY/08,mortgage rate,,6.45%,,UNITEDSTAMORRAT,3
+2026-05-13 09:30 PM,united states,PPI MoM APR,producer price inflation mom,,0.5%,0.4%,USAPPIM,3
+2026-05-13 09:30 PM,united states,Core PPI MoM APR,core producer prices mom,,0.1%,0.2%,USACPPM,3
+2026-05-13 11:30 PM,united states,EIA Crude Oil Stocks Change MAY/08,crude oil stocks change,,-2.314M,-1.6M,UNITEDSTACRUOILSTOCH,3
+2026-05-13 11:30 PM,united states,EIA Gasoline Stocks Change MAY/08,gasoline stocks change,,-2.504M,-2.55M,UNITEDSTAGASSTOCHA,3
+2026-05-14 09:30 PM,united states,Retail Sales MoM APR,retail sales mom,,1.7%,0.4%,RSTAMOM,3
+2026-05-14 09:30 PM,united states,Export Prices MoM APR,export prices mom,,1.6%,1.1%,USAEPM,3
+2026-05-14 09:30 PM,united states,Import Prices MoM APR,import prices mom,,0.8%,0.9%,USAIPM,3
+2026-05-14 09:30 PM,united states,Initial Jobless Claims MAY/09,initial jobless claims,,200K,209.0K,IJCUSA,3
+2026-05-14 09:30 PM,united states,Retail Sales Control Group MoM APR,retail sales control group,,0.7%,0.3%,USARSCG,3
+2026-05-14 09:30 PM,united states,Retail Sales Ex Autos MoM APR,retail sales ex autos,,1.9%,0.3%,UNITEDSTARETSALEXAUT,3
+2026-05-14 11:00 PM,united states,Business Inventories MoM MAR,business inventories,,0.4%,0.7%,UNITEDSTABUSINV,3
+2026-05-15 09:30 PM,united states,NY Empire State Manufacturing Index MAY,ny empire state manufacturing index,,11.00,7,UNITEDSTANYEMPSTAMAN,3
+2026-05-15 10:15 PM,united states,Industrial Production MoM APR,industrial production mom,,-0.5%,0.1%,UNITEDSTAINDPROMOM,3
+2026-05-18 11:00 PM,united states,NAHB Housing Market Index MAY,nahb housing market index,,34,35,UNITEDSTANAHHOUMARIN,3
+2026-05-19 05:00 AM,united states,Net Long-term TIC Flows MAR,net long-term tic flows,,$58.6B,,UNITEDSTANETLONTICFL,3
+2026-05-19 09:15 PM,united states,ADP Employment Change Weekly,adp employment change weekly,,33.0K,,USAAECW,3
+2026-05-19 11:00 PM,united states,Pending Home Sales MoM APR,pending home sales mom,,1.5%,0.8%,USAPHSM,3
+2026-05-19 11:00 PM,united states,Pending Home Sales YoY APR,pending home sales,,-1.1%,-0.5%,UNITEDSTAPENHOMSAL,3
+2026-05-20 05:30 AM,united states,API Crude Oil Stock Change MAY/15,api crude oil stock change,,-2.188M,,APICRUDEOIL,3
+2026-05-21 09:30 PM,united states,Building Permits Prel APR,building permits,,1.363M,1.35M,UNITEDSTABUIPER,3
+2026-05-21 09:30 PM,united states,Housing Starts APR,housing starts,,1.502M,1.45M,UNITEDSTAHOUSTA,3
+2026-05-21 09:30 PM,united states,Building Permits MoM Prel APR,building permits mom,,-11.4%,-1.0%,USABPM,3
+2026-05-21 09:30 PM,united states,Housing Starts MoM APR,housing starts mom,,10.8%,-3.5%,USAHSMOM,3
+2026-05-21 09:30 PM,united states,Philadelphia Fed Manufacturing Index MAY,philadelphia fed manufacturing index,,26.7,12,UNITEDSTAPHIFEDMANIN,3
+2026-05-21 10:45 PM,united states,S&P Global Composite PMI Flash MAY,composite pmi,,51.7,51.5,UNITEDSTACOMPMI,3
+2026-05-21 10:45 PM,united states,S&P Global Manufacturing PMI Flash MAY,manufacturing pmi,,54.5,53,UNITEDSTAMANPMI,3
+2026-05-21 10:45 PM,united states,S&P Global Services PMI Flash MAY,services pmi,,51.0,51.1,UNITEDSTASERPMI,3
+2026-05-22 06:00 AM,south korea,Consumer Confidence MAY,consumer confidence,,99.2,96,SKCOEXPC,3
+2026-05-22 11:00 PM,united states,Michigan Consumer Sentiment Final MAY,consumer confidence,,49.8,48.2,CONCCONF,3
+2026-05-25 09:30 PM,united states,Chicago Fed National Activity Index APR,chicago fed national activity index,,-0.20,,UNITEDSTACHIFEDNATAC,3
+2026-05-26 10:00 PM,united states,S&P/Case-Shiller Home Price YoY MAR,case shiller home price index yoy,,0.9%,1.2%,USACSHPIY,3
+2026-05-26 11:00 PM,united states,CB Consumer Confidence MAY,calendar,,92.8,,USD CALENDAR,3
+2026-05-26 11:30 PM,united states,Dallas Fed Manufacturing Index MAY,dallas fed manufacturing index,,-2.3,,UNITEDSTADALFEDMANIN,3
+2026-05-27 06:00 AM,south korea,Business Confidence MAY,business confidence,,74,,SouthKoreaBC,3
+2026-05-28 10:00 AM,south korea,Interest Rate Decision,interest rate,,2.5%,,KORP7DR,3
+2026-05-28 09:30 PM,united states,Core PCE Price Index MoM APR,core pce price index mom,,0.3%,,USACPPIM,3
+2026-05-28 09:30 PM,united states,Durable Goods Orders MoM APR,durable goods orders,,0.8%,,UNITEDSTADURGOOORD,3
+2026-05-28 09:30 PM,united states,GDP Growth Rate QoQ 2nd Est Q1,gdp growth rate,,0.5%,2.0%,GDP CQOQ,3
+2026-05-28 09:30 PM,united states,Personal Income MoM APR,personal income,,0.6%,,UNITEDSTAPERINC,3
+2026-05-28 09:30 PM,united states,Personal Spending MoM APR,personal spending,,0.9%,,UNITEDSTAPERSPE,3
+2026-05-28 09:30 PM,united states,Corporate Profits QoQ Prel Q1,corporate profits,,5.7%,,,3
+2026-05-28 09:30 PM,united states,Durable Goods Orders Ex Transp MoM APR,durable goods orders ex transportation,,0.9%,,UNITEDSTADURGOOORDEX,3
+2026-05-28 09:30 PM,united states,GDP Price Index QoQ 2nd Est Q1,gdp deflator,,3.7%,4.5%,,3
+2026-05-28 09:30 PM,united states,PCE Price Index MoM APR,pce price index monthly change,,0.7%,,USAPPIMC,3
+2026-05-28 09:30 PM,united states,PCE Price Index YoY APR,pce price index annual change,,3.5%,,USAPPIAC,3
+2026-05-28 11:00 PM,united states,New Home Sales APR,new home sales,,0.682M,,UNITEDSTANEWHOMSAL,3
+2026-05-28 11:00 PM,united states,New Home Sales MoM APR,new home sales mom,,7.4%,,USANHSM,3
+2026-05-29 09:30 PM,united states,Goods Trade Balance Adv APR,goods trade balance,,$-87.45B,,UNITEDSTAGOOTRABAL,3
+2026-05-29 10:45 PM,united states,Chicago PMI MAY,chicago pmi,,49.2,49.5,UNITEDSTACHIPMI,3
+2026-06-01 09:00 AM,south korea,Exports YoY MAY,exports yoy,,48%,,KOREXPYOY,3
+2026-06-01 09:30 AM,south korea,S&P Global Manufacturing PMI MAY,manufacturing pmi,,53.6,,SOUTHKOREMANPMI,3
