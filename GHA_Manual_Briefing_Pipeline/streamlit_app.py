@@ -102,7 +102,7 @@ def _clean_event_title(event: object, country_key: str) -> str:
 
 
 def render_calendar(df: pd.DataFrame) -> None:
-    st.subheader("Economic Calendar (2 x 6)")
+    st.subheader("Economic Calendar (THIS WEEK & NEXT WEEK)")
     country_order = {"united states": 0, "south korea": 1}
     country_flag = {"united states": "🇺🇸", "south korea": "🇰🇷"}
 
@@ -234,11 +234,23 @@ def _ret_cell_html(val: float | None) -> str:
     if val is None:
         return '<td class="ret-cell ret-na">-</td>'
 
-    if val > 0:
-        return f'<td class="ret-cell ret-pos">{val:+.2f}%</td>'
-    if val < 0:
-        return f'<td class="ret-cell ret-neg">{val:+.2f}%</td>'
-    return '<td class="ret-cell ret-flat">+0.00%</td>'
+    # Color scale is clipped to [-30, +30], while display keeps the actual return.
+    clipped = max(-30.0, min(30.0, float(val)))
+    neg = "#7a1f3d"
+    neu = "#f4f6fa"
+    pos = "#0c5a55"
+
+    if clipped < 0:
+        bg = _mix_hex(neg, neu, (clipped + 30.0) / 30.0)
+    else:
+        bg = _mix_hex(neu, pos, clipped / 30.0)
+
+    txt = "#ffffff" if abs(clipped) >= 17.5 else "#24324a"
+    return (
+        f'<td class="ret-cell" style="background:{bg}; color:{txt};">'
+        f"{float(val):+.2f}%"
+        "</td>"
+    )
 
 
 def _mix_hex(c1: str, c2: str, t: float) -> str:
@@ -275,7 +287,7 @@ def _zscore_cell_html(val: float | None) -> str:
 
 def render_markets() -> None:
     st.subheader("Market Performance")
-    st.caption("Yahoo Finance 기준 | 1D, 1M, 3M, 6M, 12M, YTD 수익률")
+    st.caption("Yahoo Finance 기준 | 1D, 1M, 3M, 6M, 12M, YTD 수익률 | Returns 색상 스케일: -30% ~ +30% (범위 밖은 경계색 고정)")
 
     section_returns = load_market_returns()
     section_heatmaps = load_ts_mom_heatmaps()
