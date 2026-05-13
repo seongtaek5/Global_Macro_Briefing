@@ -1,5 +1,6 @@
 import glob
 import json
+import re
 from datetime import date, timedelta
 from html import escape
 from pathlib import Path
@@ -88,23 +89,37 @@ def _normalize_country_key(country: object) -> str:
 
 def _clean_event_title(event: object, country_key: str) -> str:
     title = str(event).strip()
-    if country_key == "united states":
-        prefixes = ("US ", "U.S. ", "[US] ", "(US) ")
-    elif country_key == "south korea":
-        prefixes = ("KR ", "KOR ", "[KR] ", "(KR) ")
-    else:
+    key_aliases: dict[str, tuple[str, ...]] = {
+        "united states": ("us", "u.s", "u.s.", "usa"),
+        "south korea": ("kr", "kor", "korea", "south korea", "republic of korea"),
+        "china": ("cn", "chn", "china", "prc"),
+        "japan": ("jp", "jpn", "japan"),
+        "eu": ("eu", "europe", "european union"),
+    }
+    aliases = key_aliases.get(country_key, ())
+    return _strip_country_prefix(title, aliases)
+
+
+def _strip_country_prefix(text: str, aliases: tuple[str, ...]) -> str:
+    title = text.strip()
+    if not title or not aliases:
         return title
 
-    for prefix in prefixes:
-        if title.startswith(prefix):
-            return title[len(prefix):].strip()
-    return title
+    escaped = [re.escape(a) for a in aliases if a]
+    if not escaped:
+        return title
+
+    # Remove country prefixes only at the beginning, e.g. "US: ", "[KR] ", "(CN)-".
+    token = "(?:" + "|".join(escaped) + ")"
+    pattern = rf"^\s*(?:\[\s*{token}\s*\]|\(\s*{token}\s*\)|{token})\s*[:\-\|/]?\s*"
+    cleaned = re.sub(pattern, "", title, flags=re.IGNORECASE)
+    return cleaned.strip() or title
 
 
 def render_calendar(df: pd.DataFrame) -> None:
     st.subheader("Economic Calendar (THIS WEEK & NEXT WEEK)")
     country_order = {"united states": 0, "south korea": 1}
-    country_flag = {"united states": "🇺🇸", "south korea": "🇰🇷"}
+    country_display = {"united states": "🇺🇸 US", "south korea": "🇰🇷 KR"}
 
     parts: list[str] = [
         """
@@ -144,13 +159,13 @@ def render_calendar(df: pd.DataFrame) -> None:
             else:
                 for _, r in rows.iterrows():
                     ckey = _normalize_country_key(r.get("Country", ""))
-                    flag = country_flag.get(ckey, "🏳️")
+                    country_badge = country_display.get(ckey, "🏳️ --")
                     event = escape(_clean_event_title(r.get("Event", ""), ckey))
                     actual = escape(_clean_metric_value(r.get("Actual", "")))
                     forecast = escape(_clean_metric_value(r.get("Forecast", "")))
                     previous = escape(_clean_metric_value(r.get("Previous", "")))
                     parts.append('<div class="event-card">')
-                    parts.append(f'<div class="event-title"><strong>{flag} {event}</strong></div>')
+                    parts.append(f'<div class="event-title"><strong>{country_badge} {event}</strong></div>')
                     parts.append(
                         '<div class="afp-row">'
                         f'<span class="afp-a">A</span>: {actual} &nbsp; '
@@ -174,14 +189,14 @@ def render_news(payload: dict) -> None:
         return
 
     country_order = [
-        ("United States", "🇺🇸"),
-        ("China", "🇨🇳"),
-        ("Japan", "🇯🇵"),
-        ("Korea", "🇰🇷"),
-        ("EU", "🇪🇺"),
+        ("United States", "🇺🇸", "US"),
+        ("China", "🇨🇳", "CN"),
+        ("Japan", "🇯🇵", "JP"),
+        ("Korea", "🇰🇷", "KR"),
+        ("EU", "🇪🇺", "EU"),
     ]
 
-    for country_name, flag in country_order:
+    for country_name, flag, code in country_order:
         topics = country_view.get(country_name)
         if not isinstance(topics, dict):
             continue
@@ -203,12 +218,21 @@ def render_news(payload: dict) -> None:
             reverse=True,
         )
         st.markdown(
-            f'<div style="font-size:32px; font-weight:800; line-height:1.2;">{flag} {country_name}</div>',
+            f'<div style="font-size:32px; font-weight:800; line-height:1.2;">{flag} {code} | {country_name}</div>',
             unsafe_allow_html=True,
         )
         st.markdown("---")
         for article in merged:
-            title = str(article.get("title", "")).strip()
+            title = _strip_country_prefix(
+                str(article.get("title", "")).strip(),
+                {
+                    "United States": ("us", "u.s", "u.s.", "usa"),
+                    "Korea": ("kr", "kor", "korea", "south korea", "republic of korea"),
+                    "China": ("cn", "chn", "china", "prc"),
+                    "Japan": ("jp", "jpn", "japan"),
+                    "EU": ("eu", "europe", "european union"),
+                }.get(country_name, ()),
+            )
             dt = str(article.get("date", "")).strip()
             summary = str(article.get("AI_summary", "")).strip()
             if summary in ("", "Didn't run yet", "REPLACE_REAL_HERE", "SUMMARY ERROR"):
