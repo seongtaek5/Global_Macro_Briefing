@@ -1,0 +1,14 @@
+Flag PNG assets source:
+- Twemoji v14.0.2 (Twitter)
+- CDN: https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/
+
+Files:
+- us.png  (1f1fa-1f1f8.png)
+- kr.png  (1f1f0-1f1f7.png)
+- cn.png  (1f1e8-1f1f3.png)
+- jp.png  (1f1ef-1f1f5.png)
+- eu.png  (1f1ea-1f1fa.png)
+
+License:
+- CC-BY 4.0
+- https://creativecommons.org/licenses/by/4.0/
