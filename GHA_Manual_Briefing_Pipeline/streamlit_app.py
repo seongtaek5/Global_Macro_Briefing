@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 
 PIPELINE_DIR = Path(__file__).resolve().parent
@@ -55,97 +56,77 @@ def build_weeks(today: date) -> list[list[date]]:
     return weeks
 
 
+def _clean_metric_value(value: object) -> str:
+    raw = str(value).strip()
+    if not raw or raw.lower() in {"nan", "none", "nat"}:
+        return "-"
+    # Source data occasionally includes multiline whitespace and a trailing trademark symbol.
+    normalized = " ".join(raw.replace("®", "").split())
+    return normalized or "-"
+
+
 def render_calendar(df: pd.DataFrame) -> None:
     st.subheader("Economic Calendar (2 x 6)")
-
-    st.markdown(
-        """
-        <style>
-        .day-cell {
-            border: 1px solid #d6dbe3;
-            border-radius: 10px;
-            padding: 10px;
-            min-height: 220px;
-            background: #ffffff;
-        }
-        .day-header {
-            font-weight: 700;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-        .event-card {
-            border: 1px solid #eef1f5;
-            border-radius: 8px;
-            padding: 8px;
-            margin-bottom: 8px;
-            background: #fbfcfe;
-        }
-        .event-title {
-            line-height: 1.25;
-            min-height: 2.5em;
-            max-height: 2.5em;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-        .afp-row {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 12px;
-            line-height: 1.2;
-        }
-        .afp-a { color: #0f766e; font-weight: 700; }
-        .afp-f { color: #1d4ed8; font-weight: 700; }
-        .afp-p { color: #b45309; font-weight: 700; }
-        .empty-day {
-            color: #94a3b8;
-            font-size: 12px;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-
     country_order = {"united states": 0, "south korea": 1}
     country_flag = {"united states": "🇺🇸", "south korea": "🇰🇷"}
 
+    parts: list[str] = [
+        """
+        <style>
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+        .cal-wrap { background: #ffffff; color: #111827; border-radius: 8px; }
+        .cal-table { border-collapse: collapse; width: 100%; table-layout: fixed; font-size: 12px; }
+        .cal-table td { border: 1px solid #d1d5db; vertical-align: top; padding: 8px; background: #ffffff; }
+        .day-header { display: block; font-weight: 700; font-size: 20px; margin-bottom: 8px; color: #111827; }
+        .event-card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px; margin: 6px 0; background: #f9fafb; }
+        .event-title { line-height: 1.25; min-height: 2.5em; max-height: 2.5em; overflow: hidden; font-weight: 700; margin-bottom: 6px; color: #1f2937; }
+        .afp-row { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #374151; }
+        .afp-a { color: #0f766e; font-weight: 700; }
+        .afp-f { color: #1d4ed8; font-weight: 700; }
+        .afp-p { color: #b45309; font-weight: 700; }
+        .empty-day { color: #6b7280; }
+        </style>
+        <div class="cal-wrap">
+        <table class="cal-table">
+        """
+    ]
+
     for week in build_weeks(date.today()):
-        cols = st.columns(6)
-        for idx, d in enumerate(week):
+        parts.append("<tr>")
+        for d in week:
             rows = df[df["_date"] == d]
             if not rows.empty and "Country" in rows.columns:
                 rows = rows.assign(
                     _country_order=rows["Country"].astype(str).str.lower().map(country_order).fillna(99)
                 ).sort_values(["_country_order", "_dt"])
-            with cols[idx]:
-                html_parts = [f'<div class="day-cell"><div class="day-header">{d.strftime("%a %m/%d")}</div>']
-                if rows.empty:
-                    html_parts.append('<div class="empty-day">-</div>')
-                else:
-                    for _, r in rows.iterrows():
-                        country = str(r.get("Country", "")).strip()
-                        event = escape(str(r.get("Event", "")).strip())
-                        actual = escape(str(r.get("Actual", "")).strip() or "-")
-                        forecast = escape(str(r.get("Forecast", "")).strip() or "-")
-                        previous = escape(str(r.get("Previous", "")).strip() or "-")
-                        ckey = country.lower()
-                        flag = country_flag.get(ckey, "🏳️")
-                        html_parts.append('<div class="event-card">')
-                        html_parts.append(f'<div class="event-title"><strong>{flag} {event}</strong></div>')
-                        html_parts.append(
-                            '<div class="afp-row">'
-                            f'<span class="afp-a">A</span>: {actual} &nbsp; '
-                            f'<span class="afp-f">F</span>: {forecast} &nbsp; '
-                            f'<span class="afp-p">P</span>: {previous}'
-                            '</div>'
-                        )
-                        html_parts.append("</div>")
-                html_parts.append("</div>")
-                st.markdown("".join(html_parts), unsafe_allow_html=True)
+            parts.append('<td style="width:16.6%; min-height:220px;">')
+            parts.append(f'<span class="day-header">{escape(d.strftime("%a %m/%d"))}</span>')
+            if rows.empty:
+                parts.append('<div class="empty-day">-</div>')
+            else:
+                for _, r in rows.iterrows():
+                    country = str(r.get("Country", "")).strip()
+                    ckey = country.lower()
+                    flag = country_flag.get(ckey, "🏳️")
+                    event = escape(str(r.get("Event", "")).strip())
+                    actual = escape(_clean_metric_value(r.get("Actual", "")))
+                    forecast = escape(_clean_metric_value(r.get("Forecast", "")))
+                    previous = escape(_clean_metric_value(r.get("Previous", "")))
+                    parts.append('<div class="event-card">')
+                    parts.append(f'<div class="event-title"><strong>{flag} {event}</strong></div>')
+                    parts.append(
+                        '<div class="afp-row">'
+                        f'<span class="afp-a">A</span>: {actual} &nbsp; '
+                        f'<span class="afp-f">F</span>: {forecast} &nbsp; '
+                        f'<span class="afp-p">P</span>: {previous}'
+                        '</div>'
+                    )
+                    parts.append("</div>")
+            parts.append("</td>")
+        parts.append("</tr>")
+
+    parts.extend(["</table>", "</div>"])
+    components.html("".join(parts), height=980, scrolling=True)
 
 
 def render_news(payload: dict) -> None:
