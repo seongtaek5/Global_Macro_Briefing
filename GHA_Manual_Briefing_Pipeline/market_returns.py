@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Iterable
+from pathlib import Path
 
 import pandas as pd
 import yfinance as yf
@@ -42,6 +43,10 @@ MARKET_SECTIONS: dict[str, list[tuple[str, str]]] = {
 
 RETURN_WINDOWS = ["1D", "1M", "3M", "6M", "12M", "YTD"]
 
+BASE_DIR = Path(__file__).resolve().parent
+OUTPUT_DIR = BASE_DIR / "output"
+PRICE_CSV_PATH = OUTPUT_DIR / "yahoo_close_prices_5y.csv"
+
 
 def _extract_close(prices: pd.DataFrame | pd.Series, tickers: Iterable[str]) -> pd.DataFrame:
     ticker_list = list(tickers)
@@ -65,7 +70,7 @@ def _extract_close(prices: pd.DataFrame | pd.Series, tickers: Iterable[str]) -> 
     return prices
 
 
-def load_market_prices(tickers: tuple[str, ...], period: str = "2y") -> pd.DataFrame:
+def _download_close_prices(tickers: tuple[str, ...], period: str = "2y") -> pd.DataFrame:
     if not tickers:
         return pd.DataFrame()
 
@@ -84,6 +89,47 @@ def load_market_prices(tickers: tuple[str, ...], period: str = "2y") -> pd.DataF
     close.index = pd.to_datetime(close.index)
     close = close.sort_index()
     return close
+
+
+def _save_close_prices_csv(prices: pd.DataFrame) -> None:
+    if prices.empty:
+        return
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    out = prices.sort_index()
+    out.to_csv(PRICE_CSV_PATH, encoding="utf-8", index_label="Date")
+
+
+def _load_close_prices_csv() -> pd.DataFrame:
+    if not PRICE_CSV_PATH.exists():
+        return pd.DataFrame()
+    df = pd.read_csv(PRICE_CSV_PATH, encoding="utf-8", parse_dates=["Date"])
+    if "Date" not in df.columns:
+        return pd.DataFrame()
+    df = df.set_index("Date").sort_index()
+    df.index = pd.to_datetime(df.index)
+    return df
+
+
+def load_market_prices(tickers: tuple[str, ...], period: str = "5y") -> pd.DataFrame:
+    ticker_list = list(tickers)
+    if not ticker_list:
+        return pd.DataFrame()
+
+    saved = _load_close_prices_csv()
+    fresh = _download_close_prices(tickers, period=period)
+
+    if not fresh.empty:
+        merged = pd.concat([saved, fresh], axis=0) if not saved.empty else fresh
+        merged = merged.sort_index()
+        merged = merged[~merged.index.duplicated(keep="last")]
+        merged = merged.reindex(columns=ticker_list)
+        _save_close_prices_csv(merged)
+        return merged
+
+    if not saved.empty:
+        return saved.reindex(columns=ticker_list)
+
+    return pd.DataFrame(columns=ticker_list)
 
 
 def _price_asof(series: pd.Series, target: pd.Timestamp) -> float | None:

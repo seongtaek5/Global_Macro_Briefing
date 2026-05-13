@@ -222,12 +222,10 @@ def render_news(payload: dict) -> None:
             st.write("")
 
 
-@st.cache_data(ttl=60 * 60)
 def load_market_returns() -> dict[str, pd.DataFrame]:
     return get_market_returns(MARKET_SECTIONS, RETURN_WINDOWS)
 
 
-@st.cache_data(ttl=60 * 60)
 def load_ts_mom_heatmaps() -> dict[str, pd.DataFrame]:
     return get_ts_mom_zscore_heatmap(MARKET_SECTIONS, lookback_months=24)
 
