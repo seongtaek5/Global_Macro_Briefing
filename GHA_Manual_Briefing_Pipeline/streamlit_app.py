@@ -1,6 +1,7 @@
 import glob
 import json
 import re
+import base64
 from datetime import date, timedelta
 from html import escape
 from pathlib import Path
@@ -20,6 +21,7 @@ PIPELINE_DIR = Path(__file__).resolve().parent
 APP_DIR = PIPELINE_DIR / "app"
 CALENDAR_DIR = APP_DIR / "Calendar"
 NEWS_DIR = APP_DIR / "Macro_News_Briefing"
+FLAGS_DIR = PIPELINE_DIR / "assets" / "flags"
 
 
 def get_csv_path() -> Path | None:
@@ -72,6 +74,36 @@ def _clean_metric_value(value: object) -> str:
     return normalized or "-"
 
 
+@st.cache_data
+def _load_flag_data_uri(path: str, mtime: float) -> str:
+    raw = Path(path).read_bytes()
+    encoded = base64.b64encode(raw).decode("ascii")
+    return f"data:image/png;base64,{encoded}"
+
+
+def _country_flag_html(country_key: str, size_px: int = 16) -> str:
+    file_map = {
+        "united states": "us.png",
+        "south korea": "kr.png",
+        "china": "cn.png",
+        "japan": "jp.png",
+        "eu": "eu.png",
+    }
+    file_name = file_map.get(country_key)
+    if not file_name:
+        return ""
+
+    path = FLAGS_DIR / file_name
+    if not path.exists():
+        return ""
+
+    uri = _load_flag_data_uri(str(path), path.stat().st_mtime)
+    return (
+        f'<img src="{uri}" alt="{escape(country_key)} flag" '
+        f'style="width:{size_px}px; height:{size_px}px; vertical-align:middle; margin-right:6px;"/>'
+    )
+
+
 def _normalize_country_key(country: object) -> str:
     value = str(country).strip().lower()
     aliases = {
@@ -119,7 +151,6 @@ def _strip_country_prefix(text: str, aliases: tuple[str, ...]) -> str:
 def render_calendar(df: pd.DataFrame) -> None:
     st.subheader("Economic Calendar (THIS WEEK & NEXT WEEK)")
     country_order = {"united states": 0, "south korea": 1}
-    country_display = {"united states": "🇺🇸 US", "south korea": "🇰🇷 KR"}
 
     parts: list[str] = [
         """
@@ -159,13 +190,13 @@ def render_calendar(df: pd.DataFrame) -> None:
             else:
                 for _, r in rows.iterrows():
                     ckey = _normalize_country_key(r.get("Country", ""))
-                    country_badge = country_display.get(ckey, "🏳️ --")
+                    flag_html = _country_flag_html(ckey, size_px=15)
                     event = escape(_clean_event_title(r.get("Event", ""), ckey))
                     actual = escape(_clean_metric_value(r.get("Actual", "")))
                     forecast = escape(_clean_metric_value(r.get("Forecast", "")))
                     previous = escape(_clean_metric_value(r.get("Previous", "")))
                     parts.append('<div class="event-card">')
-                    parts.append(f'<div class="event-title"><strong>{country_badge} {event}</strong></div>')
+                    parts.append(f'<div class="event-title"><strong>{flag_html}{event}</strong></div>')
                     parts.append(
                         '<div class="afp-row">'
                         f'<span class="afp-a">A</span>: {actual} &nbsp; '
@@ -188,15 +219,9 @@ def render_news(payload: dict) -> None:
         st.info("No news data")
         return
 
-    country_order = [
-        ("United States", "🇺🇸", "US"),
-        ("China", "🇨🇳", "CN"),
-        ("Japan", "🇯🇵", "JP"),
-        ("Korea", "🇰🇷", "KR"),
-        ("EU", "🇪🇺", "EU"),
-    ]
+    country_order = ["United States", "China", "Japan", "Korea", "EU"]
 
-    for country_name, flag, code in country_order:
+    for country_name in country_order:
         topics = country_view.get(country_name)
         if not isinstance(topics, dict):
             continue
@@ -217,8 +242,10 @@ def render_news(payload: dict) -> None:
             ),
             reverse=True,
         )
+        country_key = _normalize_country_key(country_name)
+        flag_html = _country_flag_html(country_key, size_px=24)
         st.markdown(
-            f'<div style="font-size:32px; font-weight:800; line-height:1.2;">{flag} {code} | {country_name}</div>',
+            f'<div style="font-size:32px; font-weight:800; line-height:1.2;">{flag_html}{country_name}</div>',
             unsafe_allow_html=True,
         )
         st.markdown("---")
