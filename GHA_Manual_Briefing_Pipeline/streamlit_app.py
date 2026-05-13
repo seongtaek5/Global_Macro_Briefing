@@ -65,6 +65,36 @@ def _clean_metric_value(value: object) -> str:
     return normalized or "-"
 
 
+def _normalize_country_key(country: object) -> str:
+    value = str(country).strip().lower()
+    aliases = {
+        "united states": "united states",
+        "usa": "united states",
+        "us": "united states",
+        "u.s.": "united states",
+        "south korea": "south korea",
+        "korea": "south korea",
+        "republic of korea": "south korea",
+        "kr": "south korea",
+    }
+    return aliases.get(value, value)
+
+
+def _clean_event_title(event: object, country_key: str) -> str:
+    title = str(event).strip()
+    if country_key == "united states":
+        prefixes = ("US ", "U.S. ", "[US] ", "(US) ")
+    elif country_key == "south korea":
+        prefixes = ("KR ", "KOR ", "[KR] ", "(KR) ")
+    else:
+        return title
+
+    for prefix in prefixes:
+        if title.startswith(prefix):
+            return title[len(prefix):].strip()
+    return title
+
+
 def render_calendar(df: pd.DataFrame) -> None:
     st.subheader("Economic Calendar (2 x 6)")
     country_order = {"united states": 0, "south korea": 1}
@@ -97,7 +127,9 @@ def render_calendar(df: pd.DataFrame) -> None:
             rows = df[df["_date"] == d]
             if not rows.empty and "Country" in rows.columns:
                 rows = rows.assign(
-                    _country_order=rows["Country"].astype(str).str.lower().map(country_order).fillna(99)
+                    _country_key=rows["Country"].apply(_normalize_country_key),
+                ).assign(
+                    _country_order=lambda x: x["_country_key"].map(country_order).fillna(99)
                 ).sort_values(["_country_order", "_dt"])
             parts.append('<td style="width:16.6%; min-height:220px;">')
             parts.append(f'<span class="day-header">{escape(d.strftime("%a %m/%d"))}</span>')
@@ -105,10 +137,9 @@ def render_calendar(df: pd.DataFrame) -> None:
                 parts.append('<div class="empty-day">-</div>')
             else:
                 for _, r in rows.iterrows():
-                    country = str(r.get("Country", "")).strip()
-                    ckey = country.lower()
+                    ckey = _normalize_country_key(r.get("Country", ""))
                     flag = country_flag.get(ckey, "🏳️")
-                    event = escape(str(r.get("Event", "")).strip())
+                    event = escape(_clean_event_title(r.get("Event", ""), ckey))
                     actual = escape(_clean_metric_value(r.get("Actual", "")))
                     forecast = escape(_clean_metric_value(r.get("Forecast", "")))
                     previous = escape(_clean_metric_value(r.get("Previous", "")))
