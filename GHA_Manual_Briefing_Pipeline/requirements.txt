@@ -4,3 +4,4 @@ streamlit==1.45.1
 playwright==1.52.0
 beautifulsoup4==4.14.2
 lxml==6.0.2
+yfinance==1.0
