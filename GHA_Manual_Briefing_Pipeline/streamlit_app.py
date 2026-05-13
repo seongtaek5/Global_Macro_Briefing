@@ -7,6 +7,12 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
+from market_returns import (
+    MARKET_SECTIONS,
+    RETURN_WINDOWS,
+    get_market_returns,
+    get_ts_mom_zscore_heatmap,
+)
 
 
 PIPELINE_DIR = Path(__file__).resolve().parent
@@ -216,6 +222,245 @@ def render_news(payload: dict) -> None:
             st.write("")
 
 
+@st.cache_data(ttl=60 * 60)
+def load_market_returns() -> dict[str, pd.DataFrame]:
+    return get_market_returns(MARKET_SECTIONS, RETURN_WINDOWS)
+
+
+@st.cache_data(ttl=60 * 60)
+def load_ts_mom_heatmaps() -> dict[str, pd.DataFrame]:
+    return get_ts_mom_zscore_heatmap(MARKET_SECTIONS, lookback_months=24)
+
+
+def _ret_cell_html(val: float | None) -> str:
+    if val is None:
+        return '<td class="ret-cell ret-na">-</td>'
+
+    if val > 0:
+        return f'<td class="ret-cell ret-pos">{val:+.2f}%</td>'
+    if val < 0:
+        return f'<td class="ret-cell ret-neg">{val:+.2f}%</td>'
+    return '<td class="ret-cell ret-flat">+0.00%</td>'
+
+
+def _mix_hex(c1: str, c2: str, t: float) -> str:
+    t = max(0.0, min(1.0, t))
+    r1, g1, b1 = int(c1[1:3], 16), int(c1[3:5], 16), int(c1[5:7], 16)
+    r2, g2, b2 = int(c2[1:3], 16), int(c2[3:5], 16), int(c2[5:7], 16)
+    r = int(r1 + (r2 - r1) * t)
+    g = int(g1 + (g2 - g1) * t)
+    b = int(b1 + (b2 - b1) * t)
+    return f"#{r:02x}{g:02x}{b:02x}"
+
+
+def _zscore_cell_html(val: float | None) -> str:
+    if val is None:
+        return '<td class="z-cell z-na">-</td>'
+
+    clipped = max(-3.0, min(3.0, float(val)))
+    neg = "#7a1f3d"
+    neu = "#f4f6fa"
+    pos = "#0c5a55"
+
+    if clipped < 0:
+        bg = _mix_hex(neg, neu, (clipped + 3.0) / 3.0)
+    else:
+        bg = _mix_hex(neu, pos, clipped / 3.0)
+
+    txt = "#ffffff" if abs(clipped) >= 1.75 else "#24324a"
+    return (
+        f'<td class="z-cell" style="background:{bg}; color:{txt};">'
+        f"{clipped:+.2f}"
+        "</td>"
+    )
+
+
+def render_markets() -> None:
+    st.subheader("Market Performance")
+    st.caption("Yahoo Finance 기준 | 1D, 1M, 3M, 6M, 12M, YTD 수익률")
+
+    section_returns = load_market_returns()
+    section_heatmaps = load_ts_mom_heatmaps()
+    if not section_returns:
+        st.error("Yahoo Finance 데이터를 불러오지 못했습니다.")
+        return
+
+    has_any_value = False
+    for table in section_returns.values():
+        for window in RETURN_WINDOWS:
+            if window in table.columns and table[window].notna().any():
+                has_any_value = True
+                break
+        if has_any_value:
+            break
+    if not has_any_value:
+        st.error("Yahoo Finance 데이터를 불러오지 못했습니다.")
+        return
+
+    st.markdown(
+        """
+        <style>
+        .perf-section {
+            margin: 10px 0 24px 0;
+            border: 1px solid #d9deea;
+            border-radius: 12px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
+        }
+        .perf-title {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            color: #27324a;
+            padding: 12px 14px;
+            background: #eef2f9;
+            border-bottom: 1px solid #d9deea;
+        }
+        .perf-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            font-size: 14px;
+        }
+        .perf-table th,
+        .perf-table td {
+            border-bottom: 1px solid #e5e9f2;
+            padding: 10px 12px;
+            text-align: center;
+            color: #223047;
+        }
+        .perf-table th:first-child,
+        .perf-table td:first-child {
+            text-align: left;
+            width: 210px;
+            font-weight: 700;
+        }
+        .ret-cell {
+            font-weight: 700;
+            border-radius: 8px;
+        }
+        .ret-pos {
+            color: #0f6a62;
+            background: #e8f5f2;
+        }
+        .ret-neg {
+            color: #a23a57;
+            background: #fbeef2;
+        }
+        .ret-flat {
+            color: #5f6b7d;
+            background: #f1f4f8;
+        }
+        .ret-na {
+            color: #94a3b8;
+            background: #f8fafc;
+        }
+        .hm-wrap {
+            margin-top: 8px;
+            overflow-x: auto;
+            border-top: 1px solid #e5e9f2;
+            padding-top: 10px;
+        }
+        .hm-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #3a4760;
+            margin: 0 0 8px 2px;
+            letter-spacing: 0.02em;
+        }
+        .hm-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 3px;
+            table-layout: fixed;
+            font-size: 11px;
+        }
+        .hm-table th,
+        .hm-table td {
+            text-align: center;
+            padding: 6px 4px;
+            border-radius: 6px;
+        }
+        .hm-table th:first-child,
+        .hm-table td:first-child {
+            text-align: left;
+            width: 210px;
+            font-weight: 700;
+            color: #223047;
+            background: #eef2f9;
+            border-radius: 8px;
+            padding-left: 10px;
+        }
+        .hm-table thead th {
+            background: #edf1f8;
+            color: #4b5a73;
+            font-weight: 700;
+        }
+        .z-cell {
+            font-weight: 700;
+        }
+        .z-na {
+            background: #f8fafc;
+            color: #94a3b8;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    for section_name, table in section_returns.items():
+        rows: list[str] = []
+        for _, r in table.iterrows():
+            display_name = str(r.get("Instrument", "")).strip()
+            row = [f"<tr><td>{escape(display_name)}</td>"]
+            for w in RETURN_WINDOWS:
+                val = r.get(w)
+                row.append(_ret_cell_html(float(val) if pd.notna(val) else None))
+            row.append("</tr>")
+            rows.append("".join(row))
+
+        ret_head = "".join([f"<th>{escape(w)}</th>" for w in RETURN_WINDOWS])
+
+        html = [
+            '<div class="perf-section">',
+            f'<div class="perf-title">{escape(section_name)}</div>',
+            '<table class="perf-table">',
+            f"<thead><tr><th>Instrument</th>{ret_head}</tr></thead>",
+            "<tbody>",
+            *rows,
+            "</tbody></table>",
+        ]
+
+        hm_table = section_heatmaps.get(section_name, pd.DataFrame())
+        if not hm_table.empty:
+            hm_cols = [c for c in hm_table.columns if c not in {"Instrument", "Ticker"}]
+            hm_rows: list[str] = []
+            for _, hr in hm_table.iterrows():
+                name = str(hr.get("Instrument", "")).strip()
+                row = [f"<tr><td>{escape(name)}</td>"]
+                for col in hm_cols:
+                    val = hr.get(col)
+                    row.append(_zscore_cell_html(float(val) if pd.notna(val) else None))
+                row.append("</tr>")
+                hm_rows.append("".join(row))
+
+            hm_head = "".join([f"<th>{escape(str(c))}</th>" for c in hm_cols])
+            html.extend(
+                [
+                    '<div class="hm-wrap">',
+                    '<div class="hm-title">TS MOM Z-SCORE HEATMAP (1Y MOM, 1Y ROLLING Z | RANGE: -3 TO +3)</div>',
+                    '<table class="hm-table">',
+                    f"<thead><tr><th>Instrument</th>{hm_head}</tr></thead>",
+                    "<tbody>",
+                    *hm_rows,
+                    "</tbody></table></div>",
+                ]
+            )
+
+        html.append("</div>")
+        st.markdown("".join(html), unsafe_allow_html=True)
+
+
 def main() -> None:
     st.set_page_config(page_title="Manual Briefing Dashboard", page_icon="🌎", layout="wide")
     st.title("Manual Briefing Dashboard")
@@ -233,11 +478,13 @@ def main() -> None:
     cal_df = load_calendar(str(csv_path), csv_path.stat().st_mtime)
     news_payload = load_news(str(news_path), news_path.stat().st_mtime)
 
-    tab1, tab2 = st.tabs(["Calendar", "News"])
+    tab1, tab2, tab3 = st.tabs(["Calendar", "News", "Markets"])
     with tab1:
         render_calendar(cal_df)
     with tab2:
         render_news(news_payload)
+    with tab3:
+        render_markets()
 
 
 if __name__ == "__main__":
