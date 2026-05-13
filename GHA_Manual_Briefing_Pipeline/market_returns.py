@@ -14,10 +14,11 @@ MARKET_SECTIONS: dict[str, list[tuple[str, str]]] = {
         ("Dow Jones", "^DJI"),
         ("KOSPI", "^KS11"),
         ("Nikkei 225", "^N225"),
+        ("Shanghai Composite", "000001.SS"),
+        ("Hang Seng", "^HSI"),
         ("Euro Stoxx 50", "^STOXX50E"),
         ("Brazil Bovespa", "^BVSP"),
         ("India Nifty 50", "^NSEI"),
-        ("Vietnam VN Index", "^VNINDEX"),
     ],
     "COMMODITIES & CRYPTO": [
         ("Gold", "GC=F"),
