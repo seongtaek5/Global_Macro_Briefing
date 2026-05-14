@@ -12,6 +12,18 @@ NEWS_DIR = APP_DIR / "Macro_News_Briefing"
 OUTPUT_DIR = PIPELINE_DIR / "output"
 
 
+def prefetch_market_prices() -> None:
+    from market_returns import MARKET_SECTIONS, get_market_prices_snapshot
+
+    prices = get_market_prices_snapshot(MARKET_SECTIONS, period="5y")
+    if prices.empty:
+        raise RuntimeError("Failed to fetch market prices from Yahoo Finance.")
+
+    latest = prices.dropna(how="all").index.max()
+    latest_text = str(latest.date()) if latest is not None else "unknown"
+    print(f"[OK] Market prices updated: rows={len(prices)}, latest={latest_text}")
+
+
 def validate_news_hour_window(expected_hours: int = 24) -> None:
     news_dir = str(NEWS_DIR)
     if news_dir not in sys.path:
@@ -55,6 +67,8 @@ def main() -> int:
 
     child_env = os.environ.copy()
     child_env["TE_COOKIES"] = te_cookies
+
+    prefetch_market_prices()
 
     run_step([sys.executable, "scraper.py"], cwd=CALENDAR_DIR, env=child_env)
     run_step([sys.executable, "main.py"], cwd=NEWS_DIR)

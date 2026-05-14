@@ -65,6 +65,7 @@ jobs:
             GHA_Manual_Briefing_Pipeline/app/Calendar/economic_calendar_*.csv
             GHA_Manual_Briefing_Pipeline/app/Macro_News_Briefing/briefing_result.json
             GHA_Manual_Briefing_Pipeline/output/email_preview.html
+            GHA_Manual_Briefing_Pipeline/output/yahoo_close_prices_5y.csv
 
       - name: Auto-merge generated data PR
         if: ${{ steps.cpr.outputs.pull-request-number != '' }}
@@ -83,3 +84,4 @@ jobs:
             GHA_Manual_Briefing_Pipeline/app/Calendar/economic_calendar_*.csv
             GHA_Manual_Briefing_Pipeline/app/Macro_News_Briefing/briefing_result.json
             GHA_Manual_Briefing_Pipeline/output/email_preview.html
+            GHA_Manual_Briefing_Pipeline/output/yahoo_close_prices_5y.csv
