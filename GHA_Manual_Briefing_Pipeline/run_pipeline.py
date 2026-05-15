@@ -13,9 +13,10 @@ OUTPUT_DIR = PIPELINE_DIR / "output"
 
 
 def prefetch_market_prices() -> None:
-    from market_returns import MARKET_SECTIONS, get_market_prices_snapshot
+    from market_returns import MARKET_SECTIONS, load_market_prices
 
-    prices = get_market_prices_snapshot(MARKET_SECTIONS, period="5y")
+    tickers = tuple(ticker for items in MARKET_SECTIONS.values() for _, ticker in items)
+    prices = load_market_prices(tickers, period="5y")
     if prices.empty:
         raise RuntimeError("Failed to fetch market prices from Yahoo Finance.")
 
