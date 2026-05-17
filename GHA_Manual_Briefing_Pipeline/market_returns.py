@@ -71,23 +71,48 @@ def _extract_close(prices: pd.DataFrame | pd.Series, tickers: Iterable[str]) -> 
     return prices
 
 
+def _to_naive_utc_index(index: pd.Index) -> pd.DatetimeIndex:
+    dt_index = pd.to_datetime(index, utc=True, errors="coerce")
+    return dt_index.tz_localize(None)
+
+
 def _download_close_prices(tickers: tuple[str, ...], period: str = "2y") -> pd.DataFrame:
     if not tickers:
         return pd.DataFrame()
 
-    prices = yf.download(
-        tickers=list(tickers),
-        period=period,
-        interval="1d",
-        auto_adjust=True,
-        progress=False,
-        threads=True,
-    )
-    close = _extract_close(prices, tickers)
-    if close.empty:
+    # Download each ticker separately to avoid yfinance internal concat errors
+    # when mixed exchanges return tz-aware and tz-naive indices together.
+    per_ticker: list[pd.DataFrame] = []
+    for ticker in tickers:
+        prices = yf.download(
+            tickers=ticker,
+            period=period,
+            interval="1d",
+            auto_adjust=True,
+            progress=False,
+            threads=False,
+        )
+        close = _extract_close(prices, (ticker,))
+        if close.empty:
+            continue
+
+        if ticker not in close.columns:
+            if len(close.columns) == 1:
+                close = close.rename(columns={close.columns[0]: ticker})
+            else:
+                continue
+
+        close = close[[ticker]].copy()
+        close.index = _to_naive_utc_index(close.index)
+        close = close[~close.index.isna()]
+        close = close.sort_index()
+        per_ticker.append(close)
+
+    if not per_ticker:
         return pd.DataFrame()
 
-    close.index = pd.to_datetime(close.index)
+    close = pd.concat(per_ticker, axis=1)
+    close = close.reindex(columns=list(tickers))
     close = close.sort_index()
     return close
 
@@ -107,7 +132,7 @@ def _load_close_prices_csv() -> pd.DataFrame:
     if "Date" not in df.columns:
         return pd.DataFrame()
     df = df.set_index("Date").sort_index()
-    df.index = pd.to_datetime(df.index)
+    df.index = _to_naive_utc_index(df.index)
     return df
 
 
@@ -118,6 +143,11 @@ def load_market_prices(tickers: tuple[str, ...], period: str = "5y") -> pd.DataF
 
     saved = _load_close_prices_csv()
     fresh = _download_close_prices(tickers, period=period)
+
+    if not saved.empty:
+        saved.index = _to_naive_utc_index(saved.index)
+    if not fresh.empty:
+        fresh.index = _to_naive_utc_index(fresh.index)
 
     if not fresh.empty:
         merged = pd.concat([saved, fresh], axis=0) if not saved.empty else fresh
@@ -161,8 +191,11 @@ def _window_start(now: pd.Timestamp, window: str) -> pd.Timestamp:
 
 
 def calc_return(series: pd.Series, window: str, as_of: pd.Timestamp | None = None) -> float | None:
+    hist = series.dropna().sort_index()
+    if hist.empty:
+        return None
+
     if window == "1D":
-        hist = series.dropna()
         if len(hist) < 2:
             return None
         end_px = float(hist.iloc[-1])
@@ -171,9 +204,15 @@ def calc_return(series: pd.Series, window: str, as_of: pd.Timestamp | None = Non
             return None
         return (end_px / prev_px - 1.0) * 100.0
 
-    now = (as_of or pd.Timestamp.today()).normalize()
-    end_px = _price_asof(series, now)
-    start_px = _price_asof(series, _window_start(now, window))
+    if as_of is None:
+        end_ts = pd.Timestamp(hist.index[-1]).normalize()
+    else:
+        requested = pd.Timestamp(as_of).normalize()
+        eligible = hist.loc[:requested]
+        end_ts = pd.Timestamp(eligible.index[-1]).normalize() if not eligible.empty else pd.Timestamp(hist.index[-1]).normalize()
+
+    end_px = _price_asof(hist, end_ts)
+    start_px = _price_asof(hist, _window_start(end_ts, window))
 
     if end_px is None or start_px is None or start_px == 0:
         return None
