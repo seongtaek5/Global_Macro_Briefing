@@ -80,6 +80,9 @@ def _download_close_prices(tickers: tuple[str, ...], period: str = "2y") -> pd.D
     if not tickers:
         return pd.DataFrame()
 
+    # yfinance end is exclusive; setting today UTC keeps data up to yesterday.
+    end_exclusive = pd.Timestamp.now("UTC").normalize().strftime("%Y-%m-%d")
+
     # Download each ticker separately to avoid yfinance internal concat errors
     # when mixed exchanges return tz-aware and tz-naive indices together.
     per_ticker: list[pd.DataFrame] = []
@@ -87,8 +90,9 @@ def _download_close_prices(tickers: tuple[str, ...], period: str = "2y") -> pd.D
         prices = yf.download(
             tickers=ticker,
             period=period,
+            end=end_exclusive,
             interval="1d",
-            auto_adjust=True,
+            auto_adjust=False,
             progress=False,
             threads=False,
         )
