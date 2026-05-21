@@ -1,18 +1,22 @@
 ﻿Date,Country,Event,Category,Actual,Previous,Forecast,Symbol,Importance
-2026-05-20 05:55 AM,united states,API Crude Oil Stock Change MAY/15,api crude oil stock change,-9.1M,-2.188M,-3.4M,APICRUDEOIL,3
-2026-05-20 08:00 PM,united states,MBA 30-Year Mortgage Rate MAY/15,mortgage rate,6.56%,6.46%,,UNITEDSTAMORRAT,3
-2026-05-20 11:30 PM,united states,EIA Crude Oil Stocks Change MAY/15,crude oil stocks change,-7.864M,-4.306M,-2.9M,UNITEDSTACRUOILSTOCH,3
-2026-05-20 11:30 PM,united states,EIA Gasoline Stocks Change MAY/15,gasoline stocks change,-1.548M,-4.084M,-2.1M,UNITEDSTAGASSTOCHA,3
-2026-05-21 09:30 PM,united states,Building Permits Prel APR,building permits,,1.363M,1.37M,UNITEDSTABUIPER,3
-2026-05-21 09:30 PM,united states,Housing Starts APR,housing starts,,1.502M,1.45M,UNITEDSTAHOUSTA,3
-2026-05-21 09:30 PM,united states,Building Permits MoM Prel APR,building permits mom,,-11.4%,0.5%,USABPM,3
-2026-05-21 09:30 PM,united states,Housing Starts MoM APR,housing starts mom,,10.8%,-3.5%,USAHSMOM,3
-2026-05-21 09:30 PM,united states,Initial Jobless Claims MAY/16,initial jobless claims,,211K,210.0K,IJCUSA,3
-2026-05-21 09:30 PM,united states,Philadelphia Fed Manufacturing Index MAY,philadelphia fed manufacturing index,,26.7,19,UNITEDSTAPHIFEDMANIN,3
-2026-05-21 10:45 PM,united states,S&P Global Composite PMI Flash MAY,composite pmi,,51.7,51.5,UNITEDSTACOMPMI,3
-2026-05-21 10:45 PM,united states,S&P Global Manufacturing PMI Flash MAY,manufacturing pmi,,54.5,53,UNITEDSTAMANPMI,3
-2026-05-21 10:45 PM,united states,S&P Global Services PMI Flash MAY,services pmi,,51.0,51.1,UNITEDSTASERPMI,3
-2026-05-22 06:00 AM,south korea,Consumer Confidence MAY,consumer confidence,,99.2,96,SKCOEXPC,3
+2026-05-21 09:30 PM,united states,Building Permits Prel APR,building permits,1.442M,1.363M,1.37M,UNITEDSTABUIPER,3
+2026-05-21 09:30 PM,united states,Housing Starts APR,housing starts,1.465M,"1.507M 
+ 
+                        ®",1.45M,UNITEDSTAHOUSTA,3
+2026-05-21 09:30 PM,united states,Building Permits MoM Prel APR,building permits mom,5.8%,"-11.5% 
+ 
+                        ®",0.5%,USABPM,3
+2026-05-21 09:30 PM,united states,Housing Starts MoM APR,housing starts mom,-2.8%,"12% 
+ 
+                        ®",-3.5%,USAHSMOM,3
+2026-05-21 09:30 PM,united states,Initial Jobless Claims MAY/16,initial jobless claims,209K,"212K 
+ 
+                        ®",210.0K,IJCUSA,3
+2026-05-21 09:30 PM,united states,Philadelphia Fed Manufacturing Index MAY,philadelphia fed manufacturing index,-0.4,26.7,19,UNITEDSTAPHIFEDMANIN,3
+2026-05-21 10:45 PM,united states,S&P Global Composite PMI Flash MAY,composite pmi,51.7,51.7,51.5,UNITEDSTACOMPMI,3
+2026-05-21 10:45 PM,united states,S&P Global Manufacturing PMI Flash MAY,manufacturing pmi,55.3,54.5,53,UNITEDSTAMANPMI,3
+2026-05-21 10:45 PM,united states,S&P Global Services PMI Flash MAY,services pmi,50.9,51.0,51.1,UNITEDSTASERPMI,3
+2026-05-22 06:00 AM,south korea,Consumer Confidence MAY,consumer confidence,106.1,99.2,96,SKCOEXPC,3
 2026-05-22 11:00 PM,united states,Michigan Consumer Sentiment Final MAY,consumer confidence,,49.8,48.2,CONCCONF,3
 2026-05-26 09:30 PM,united states,Chicago Fed National Activity Index APR,chicago fed national activity index,,-0.20,-0.3,UNITEDSTACHIFEDNATAC,3
 2026-05-26 10:00 PM,united states,S&P/Case-Shiller Home Price YoY MAR,case shiller home price index yoy,,0.9%,0.3%,USACSHPIY,3
@@ -31,6 +35,7 @@
 2026-05-28 09:30 PM,united states,Corporate Profits QoQ Prel Q1,corporate profits,,5.7%,4.1%,,3
 2026-05-28 09:30 PM,united states,Durable Goods Orders Ex Transp MoM APR,durable goods orders ex transportation,,0.9%,0.5%,UNITEDSTADURGOOORDEX,3
 2026-05-28 09:30 PM,united states,GDP Price Index QoQ 2nd Est Q1,gdp deflator,,3.7%,4.5%,,3
+2026-05-28 09:30 PM,united states,Initial Jobless Claims MAY/23,initial jobless claims,,209K,215.0K,IJCUSA,3
 2026-05-28 09:30 PM,united states,PCE Price Index MoM APR,pce price index monthly change,,0.7%,0.5%,USAPPIMC,3
 2026-05-28 09:30 PM,united states,PCE Price Index YoY APR,pce price index annual change,,3.5%,3.8%,USAPPIAC,3
 2026-05-28 11:00 PM,united states,New Home Sales APR,new home sales,,0.682M,0.66M,UNITEDSTANEWHOMSAL,3
@@ -55,3 +60,8 @@
 2026-06-05 09:30 PM,united states,Average Hourly Earnings MoM MAY,average hourly earnings,,0.2%,,UNITEDSTAAVEHOUEAR,3
 2026-06-05 09:30 PM,united states,Average Hourly Earnings YoY MAY,average hourly earnings yoy,,3.6%,,USAAHEY,3
 2026-06-05 09:30 PM,united states,Participation Rate MAY,labor force participation rate,,61.8%,61.7%,UNITEDSTALABFORPARRA,3
+2026-06-09 09:30 PM,united states,Balance of Trade APR,balance of trade,,$-60.3B,,USTBTOT,3
+2026-06-09 09:30 PM,united states,Exports APR,exports,,$320.9B,,TBEXTOT,3
+2026-06-09 09:30 PM,united states,Imports APR,imports,,$381.2B,,TBIMTOT,3
+2026-06-09 11:00 PM,united states,Existing Home Sales MAY,existing home sales,,4.02M,,UNITEDSTAEXIHOMSAL,3
+2026-06-09 11:00 PM,united states,Existing Home Sales MoM MAY,existing home sales mom,,0.2%,,USAEHSM,3
